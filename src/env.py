@@ -3,7 +3,7 @@ def load_env(file: str = ".env") -> dict[str, str]:
     try:
         with open(file) as f:
             for line in f:
-                line = line.rstrip("#\n")
+                line = line.split("#")[0]
 
                 if line:
                     key, value = line.strip().split("=")
