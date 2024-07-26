@@ -7,8 +7,13 @@ def load_env(file: str = ".env") -> dict[str, str]:
 
                 if line:
                     key, value = line.strip().split("=")
+                    if key == "APIKEY":
+                        if "Bearer " in value:
+                            pass
+                        else:
+                            value = "Bearer " + value
                     env_vars[key] = value
 
     except FileNotFoundError:
-        raise
+        pass
     return env_vars
