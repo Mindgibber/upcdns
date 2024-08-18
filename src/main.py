@@ -21,14 +21,23 @@ def main():
         print("No config found")
         return
     cf = cfapi.Cf(
-        env_vars["CFHOST"], env_vars["CFKEY"], env_vars["ZONEID"], env_vars["EMAIL"]
+        env_vars["CFHOST"],
+        env_vars["CFKEY"],
+        env_vars["ZONEID"],
+        env_vars["EMAIL"],
+        env_vars["SITES"],
     )
-    recordid = cf.get_record_id()
+    records = cf.get_record_id()
     ip = get_ip(env_vars["IPHOST"])
     if ip:
         print(ip)
-        if recordid:
-            _ = cf.update_dns_record(ip, recordid)
+        if records:
+            for record in records:
+                if record.ip != ip:
+                    _ = cf.update_dns_record(ip, record.id)
+                    print(f"{record.name} was updated: {record.ip}")
+                else:
+                    print(f"{record.name} ip was already updated")
 
 
 if __name__ == "__main__":
