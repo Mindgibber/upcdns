@@ -174,17 +174,20 @@ class Cf:
             return data
         return ""
 
-    def get_dns_records(self) -> str:
+    def get_dns_records(self) -> str | None:
         conn = http.client.HTTPSConnection(self.host)
-        conn.request(
-            "GET",
-            f"/client/v4/zones/{self.zoneid}/dns_records",
-            headers={
-                "Host": self.host,
-                "Authorization": self.apikey,
-                "X-Auth-Email": self.email,
-            },
-        )
+        try:
+            conn.request(
+                "GET",
+                f"/client/v4/zones/{self.zoneid}/dns_records",
+                headers={
+                    "Host": self.host,
+                    "Authorization": self.apikey,
+                    "X-Auth-Email": self.email,
+                },
+            )
+        except:
+            return None
         resp = conn.getresponse()
         data = resp.read().decode("utf-8")
         return data
@@ -206,18 +209,20 @@ class Cf:
         data = resp.read().decode("utf-8")
         return data
 
-    def get_record_id(self) -> list[siteret]:
+    def get_record_id(self) -> list[siteret] | None:
         sites: list[siteret] = []
         data = self.get_dns_records()
-        results: CfResponse = json.loads(data, object_hook=CfDecoder)
-        for result in results.result:
-            if result is not None:
-                if result.type == "A" and result.name in self.sites:
-                    sites.append(
-                        siteret(
-                            name=result.name,
-                            id=result.zone_id,
-                            ip=result.content,
+        if data:
+            results: CfResponse = json.loads(data, object_hook=CfDecoder)
+            for result in results.result:
+                if result is not None:
+                    if result.type == "A" and result.name in self.sites:
+                        sites.append(
+                            siteret(
+                                name=result.name,
+                                id=result.zone_id,
+                                ip=result.content,
+                            )
                         )
-                    )
-        return sites
+            return sites
+        return None
